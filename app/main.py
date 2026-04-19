@@ -16,7 +16,6 @@ import pandas as pd
 # 🆕 IMPORTED FOR DESKTOP APP COMPILATION
 import threading
 import uvicorn
-import webview
 
 # Project Imports
 from app.core.database import engine, Base, get_db, SessionLocal
@@ -667,6 +666,11 @@ def run_fastapi_server():
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="error")
 
 if __name__ == "__main__":
+    try:
+        import webview
+    except ImportError as exc:
+        raise RuntimeError("Desktop mode requires pywebview. Install it to run app/main.py directly.") from exc
+
     # 1. Start the server secretly in the background
     server_thread = threading.Thread(target=run_fastapi_server, daemon=True)
     server_thread.start()
