@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABUAB ENTERPRISE COMMAND</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #090e17; 
+            --sidebar-grad: linear-gradient(145deg, #0b1120 0%, #1e293b 100%);
+            --cobalt: #2563eb; 
+            --cobalt-glow: rgba(37, 99, 235, 0.4);
+            --gold: #d4af37; 
+            --gold-glow: rgba(212, 175, 55, 0.4);
+            --danger: #ef4444; 
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --warning: #f59e0b;
+            --success: #10b981;
+            --text-light: #64748b;
+            /* Base texture colors - slightly darker for pattern contrast */
+            --bg-base: #e2e8f0;
+            --pattern-color: #cbd5e1;
+            /* 🛑 FIXED: Widened sidebar to 300px to accommodate larger logo */
+            --sidebar-w: 300px; 
+        }
+
+        /* CUSTOM SCROLLBARS */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); border: 2px solid transparent; background-clip: padding-box;}
+
+        /* 🛑 ANIMATED MESH & TEXTURE LAYOUT */
+        @keyframes mesh { 0% { background-position: 0% 0%, 0% 0%, 0% 0%; } 100% { background-position: 0% 0%, 50px 50px, 100% 100%; } }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            gap: 25px; 
+            padding: 20px; 
+            height: 100vh; 
+            width: 100vw;
+            box-sizing: border-box;
+            overflow: hidden; 
+            color: #1e293b; 
+
+            /* 🛑 THE TEXTURE INJECTION 🛑 */
+            background-color: var(--bg-base);
+            background-image:
+                /* Pattern 1: Dot Matrix */
+                radial-gradient(var(--pattern-color) 1px, transparent 1px),
+                /* Pattern 2: Blueprint Grid */
+                linear-gradient(var(--pattern-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--pattern-color) 1px, transparent 1px),
+                /* Base layer: The moving mesh animation */
+                linear-gradient(120deg, #f8fafc, #cbd5e1, #94a3b8);
+            
+            background-size: 
+                25px 25px, /* dots */
+                100px 100px, 100px 100px, /* grid */
+                400% 400%; /* animated mesh */
+            
+            animation: mesh 30s linear infinite alternate;
+        }
+
+        /* Prevent text clipping for long labels/values in tight containers. */
+        h1, h2, h3, h4, h5, h6, p, td, label, button, .btn, .nav-link, #role-badge {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        th {
+            white-space: nowrap;
+            word-break: normal;
+            overflow-wrap: normal;
+        }
+        
+        /* 🛑 FLOATING SIDEBAR PANEL */
+        .sidebar { 
+            width: var(--sidebar-w); 
+            height: 100%; 
+            background: var(--sidebar-grad); 
+            color: white; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 1000; 
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 24px; 
+            box-shadow: 25px 25px 60px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.03);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* 🛑 FIXED: Centering logic for the header */
+        /* 🛑 ADJUST THE HEADER CONTAINER HERE */
+        .sidebar-header { 
+            padding: 40px 0 20px 0; /* Adjust Top/Bottom spacing here */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* This attempts to auto-center */
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            background: transparent; /* Removed any gradients hiding behind the logo */
+        }
+        
+        @keyframes breathe { 0% { box-shadow: 0 0 20px var(--gold-glow); } 50% { box-shadow: 0 0 40px var(--gold-glow), 0 0 10px white; } 100% { box-shadow: 0 0 20px var(--gold-glow); } }
+        
+        /* 🛑 MANUALLY ADJUST THE LOGO HERE */
+        /* 1. THE FIXED FRAME (Controls the gold ring and size) */
+        /* 1. THE FIXED FRAME (The gold ring - DO NOT MOVE THIS) */
+        .logo-frame { 
+            width: 170px;   /* Size of the gold ring */
+            height: 170px;  
+            border-radius: 50%; 
+            border: 4px solid var(--gold); 
+            animation: breathe 4s infinite ease-in-out;
+            margin: 0 auto 20px auto; /* This keeps the gold ring dead-center in the sidebar */
+            overflow: hidden; /* This crops the image so it doesn't spill out */
+            background: transparent;
+            position: relative;
+        }
+
+        /* 2. THE IMAGE INSIDE (Move and zoom ONLY the logo here) */
+        .logo-img { 
+            width: 105%; 
+            height: 100%;
+            object-fit: cover;
+            
+            /* 👈 1. ZOOM CONTROL: Increase to 1.2 or 1.3 to hide white edges */
+            transform: scale(1.15); 
+            
+            /* 🛑 2. NUDGE CONTROLS: Move the image inside the gold ring */
+            position: relative;
+            left: -11.5px; /* 👈 Nudge Left/Right (Try 5px, 10px, or -10px) */
+            top: 0px;  /* 👈 Nudge Up/Down (Try 5px, 10px, or -10px) */
+            
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Makes the logo zoom in a tiny bit more when you hover over it */
+        .logo-frame:hover .logo-img { 
+            transform: scale(1.25); 
+        }
+        .logo-img:hover { transform: scale(1.08) rotate(5deg); }
+
+        #role-badge { 
+            color: var(--primary); 
+            background: linear-gradient(90deg, var(--gold) 0%, #fef08a 100%);
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-weight: 900; 
+            font-size: 0.75rem; 
+            letter-spacing: 4px; 
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px var(--gold-glow);
+            text-align: center;
+        }
+        
+        .nav-links { flex-grow: 1; padding: 15px 0; overflow-y: auto; width: 100%; }
+        .nav-link { 
+            padding: 16px 30px; 
+            display: flex; 
+            align-items: center; 
+            color: #94a3b8; 
+            text-decoration: none; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            position: relative;
+            letter-spacing: 1px;
+            margin: 4px 15px;
+            border-radius: 12px;
+            white-space: normal;
+            line-height: 1.25;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: white; transform: translateX(5px); }
+        .nav-link.active { 
+            background: rgba(212,175,55,0.15); 
+            color: var(--gold); 
+            font-weight: 900;
+            box-shadow: inset 0 0 0 1px rgba(212,175,55,0.3);
+        }
+        .nav-link i { margin-right: 15px; width: 25px; text-align: center; font-size: 1.2rem;}
+        
+        /* 🛑 FLOATING MAIN CONTENT AREA */
+        .main { 
+            flex-grow: 1; 
+            height: 100%; 
+            overflow-y: auto; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            border-radius: 24px;
+            background: transparent; 
+            padding-right: 10px; /* space for scrollbar to not be on edge */
+        }
+
+        .page-section { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page-section.active { display: block; }
+        
+        /* ULTRA-PREMIUM GLASS CONTAINERS */
+        .box { 
+            background: rgba(255, 255, 255, 0.88); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 35px; 
+            border-radius: 24px; 
+            /* Enhanced ambient shadow for depth on texture */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,1); 
+            margin-bottom: 25px; 
+            position: relative;
+            overflow: hidden;
+        }
+        .box h3 { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-top:0; letter-spacing: -0.5px; text-transform: uppercase;}
+
+        /* HOLOGRAPHIC STAT CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 25px; }
+        .card { 
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.6) 100%);
+            backdrop-filter: blur(10px);
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05), inset 0 0 0 1px white; 
+            position: relative; 
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card::before { content: ''; position: absolute; top:0; left:0; width:6px; height:100%; background: var(--cobalt); border-radius: 6px 0 0 6px; }
+        .card:nth-child(2)::before { background: var(--gold); }
+        .card:nth-child(3)::before { background: var(--success); }
+        .card:nth-child(4)::before { background: var(--danger); }
+        
+        .card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 25px 50px rgba(0,0,0,0.08); }
+        .card i.bg-icon { position: absolute; right: -10px; bottom: -20px; font-size: 8rem; color: rgba(0,0,0,0.02); transform: rotate(-15deg); transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); z-index: 0; }
+        .card:hover i.bg-icon { transform: rotate(0deg) scale(1.2); color: rgba(37, 99, 235, 0.05); }
+        .card h3 { font-size: 0.85rem; color: #64748b; text-transform: uppercase; margin: 0; letter-spacing: 1.5px; font-weight: 800; position: relative; z-index: 2;}
+        .card p { font-size: 3rem; font-weight: 900; margin: 15px 0 0; color: var(--primary); letter-spacing: -2px; position: relative; z-index: 2; }
+
+        /* 🛑 TERMINAL-GRADE INPUTS */
+        input, select { 
+            padding: 16px 20px; 
+            border: 2px solid #cbd5e1; 
+            border-radius: 12px; 
+            outline: none; 
+            width: 100%; 
+            box-sizing: border-box; 
+            font-size: 1.1rem; 
+            font-weight: 700;
+            color: var(--primary); 
+            background: rgba(255,255,255,0.9);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus { 
+            border-color: var(--cobalt); 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px var(--cobalt-glow), inset 0 2px 4px rgba(0,0,0,0.01); 
+            transform: translateY(-2px);
+        }
+        
+        /* THE "HUD" SCANNER */
+        .fast-input { 
+            padding: 30px; 
+            font-size: 1.8rem; 
+            border: 3px solid #1e293b; 
+            text-align: center; 
+            font-weight: 900; 
+            letter-spacing: 4px;
+            background: #0f172a;
+            color: #34d399; /* Terminal green */
+            border-radius: 16px;
+            text-transform: uppercase;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            transition: all 0.3s;
+        }
+        .fast-input::placeholder { color: #475569; font-weight: 700; letter-spacing: 2px;}
+        .fast-input:focus { border-color: var(--gold); box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 25px var(--gold-glow); color: var(--gold); transform: scale(1.01);}
+
+        /* FROSTED GLASS TABLES */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; }
+        th { 
+            background: rgba(248, 250, 252, 0.9); 
+            backdrop-filter: blur(10px); /* Frosted header */
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 0.8rem; color: #475569; text-transform: uppercase; font-weight: 900; 
+            letter-spacing: 1.5px; padding: 20px; position: sticky; top: 0; z-index: 20;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        td { padding: 18px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); font-weight: 600;}
+        tbody tr { transition: all 0.2s ease; }
+        tbody tr:hover { background: #ffffff; transform: scale(1.015); box-shadow: 0 10px 25px rgba(0,0,0,0.08); border-radius: 12px; position: relative; z-index: 10; }
+        .lookup-row:hover { background: #fef9c3; cursor: pointer; }
+        .lookup-row:hover td:first-child { border-left: 4px solid var(--gold); border-radius: 12px 0 0 12px;}
+
+        /* LIQUID BUTTONS */
+        .btn { 
+            padding: 16px 30px; border: none; border-radius: 14px; cursor: pointer; font-weight: 900; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; 
+            gap: 12px; justify-content: center; font-size: 1rem; text-transform: uppercase; letter-spacing: 1.5px; 
+            position: relative; overflow: hidden;
+        }
+        .btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn:hover::after { left: 100%; }
+
+        .btn-primary { background: linear-gradient(135deg, var(--cobalt) 0%, #1e3a8a 100%); color: white; box-shadow: 0 10px 25px var(--cobalt-glow); }
+        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 15px 35px var(--cobalt-glow); }
+        
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; width: 100%; font-size: 1.5rem; padding: 25px; margin-top: 25px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); border-radius: 16px; }
+        .btn-success:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.5);}
+        
+        .btn-danger { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5;}
+        .btn-danger:hover { background: var(--danger); color: white; box-shadow: 0 8px 20px var(--danger-glow);}
+        
+        .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3); }
+        .btn-warning:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.5); }
+
+        /* HOLOGRAPHIC HEADERS & CLOCK */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); padding: 20px 30px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.05), inset 0 0 0 1px white;}
+        
+        .page-title { 
+            margin: 0; font-size: 2.2rem; font-weight: 900; letter-spacing: -1px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--cobalt) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .clock-widget { display: flex; align-items: center; gap: 20px; }
+        #live-clock { font-size: 1.5rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; font-variant-numeric: tabular-nums;}
+        .pulse-dot { width: 14px; height: 14px; background: var(--success); border-radius: 50%; box-shadow: 0 0 15px var(--success); animation: pulse 1.5s infinite; }
+
+        /* BLUR MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+        .modal-box { background: white; padding: 50px; border-radius: 30px; width: 450px; text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.4); border-top: 8px solid var(--danger); animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-width: 90%; max-height: 90vh; overflow-y: auto;}
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+        /* POS LAYOUT */
+        .pos-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; min-height: 80vh; }
+        .pos-cart { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.08); display: flex; flex-direction: column; border: 1px solid white; overflow: hidden;}
+        .pos-header { padding: 30px 40px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center;}
+        
+        /* 🛑 PAYMENT HUB STYLES */
+        .payment-math {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        /* 🛑 SMART MATHEMATICAL AUTO-RESIZE CLASS 🛑 */
+        .auto-resize {
+            white-space: nowrap !important;
+            display: block;
+            width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .inventory-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-top: 30px;
+            align-items: stretch;
+        }
+
+        .inventory-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .inventory-input-grid input,
+        .inventory-input-grid select,
+        .inventory-filter-grid input,
+        .inventory-filter-grid select {
+            min-width: 0;
+            width: 100%;
+            font-size: 1rem;
+            line-height: 1.25;
+            padding: 14px 16px;
+        }
+
+        .inventory-input-grid input::placeholder,
+        .inventory-filter-grid input::placeholder {
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        .grand-total, .change-display, #modal-total-due {
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            font-size: 4rem; /* Base size, JS will scale it down if needed */
+            margin: 10px 0;
+        }
+        .grand-total { background: linear-gradient(135deg, var(--primary) 0%, var(--cobalt) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0px 10px 20px rgba(0,0,0,0.05); }
+        .change-display { color: var(--success); }
+
+        /* 🛑 MOBILE & RESPONSIVE DESIGN FIXES */
+        @media (max-width: 1200px) {
+            .pos-container, div[style*="grid-template-columns: 2.2fr 1fr"], div[style*="grid-template-columns: 2.5fr 1fr"] { grid-template-columns: 1fr !important; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; padding: 10px; gap: 10px; }
+            .sidebar { width: 100%; height: auto; border-radius: 16px; flex-shrink: 0; }
+            .nav-links { display: flex; flex-wrap: wrap; justify-content: center; }
+            .nav-link { margin: 5px; padding: 10px 15px; }
+            .main { overflow: visible; padding-right: 0; }
+            .top-header { flex-direction: column; gap: 15px; text-align: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .modal-box { width: 95% !important; padding: 20px !important; }
+            .fast-input { font-size: 1.2rem; }
+            #cash-tendered { font-size: 2rem !important; height: 60px !important; }
+            div[style*="display: grid"] { grid-template-columns: 1fr !important; }
+
+            .inventory-input-grid,
+            .inventory-filter-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            #inventory .box.admin-only .btn.btn-primary {
+                width: 100%;
+            }
+
+            /* Keep utility actions readable on small screens. */
+            .btn {
+                white-space: normal;
+                line-height: 1.2;
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="pinModal">
+        <div class="modal-box" id="modal-container" style="width: 500px;">
+            <h2 id="modal-header" style="color: var(--cobalt); margin-top:0; font-size: 2.5rem; font-weight: 900;"><i class="fa-solid fa-cash-register"></i> PAYMENT</h2>
+            
+            <div id="payment-zone">
+                <div class="payment-math">
+                    <label style="font-weight:900; color:#64748b; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Amount Due</label>
+                    <div id="modal-total-due" class="auto-resize" style="color: var(--primary);">₱0.00</div>
+                </div>
+
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <label style="font-weight:900; color: var(--primary); display: block; margin-bottom: 10px;">CASH TENDERED (₱)</label>
+                    <input type="number" id="cash-tendered" placeholder="0.00" 
+                           style="font-size: 3rem; height: 90px; text-align: center; border: 4px solid var(--cobalt); color: var(--cobalt); background: white;"
+                           onkeyup="calculateChange()">
+                </div>
+
+                <div class="payment-math" style="background: #0f172a; border: none;">
+                    <label style="font-weight:900; color: #94a3b8; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Change to Customer</label>
+                    <div id="change-due-display" class="change-display auto-resize">₱0.00</div>
+                </div>
+            </div>
+
+            <div id="pin-zone" style="display:none; margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 20px;">
+                <p id="pinModalMsg" style="color: var(--danger); font-weight: 800; margin-bottom: 10px;">Manager PIN required.</p>
+                <input type="password" id="override-pin" placeholder="••••" maxlength="4" style="text-align: center; font-size: 4rem; letter-spacing: 25px; font-weight: 900; margin: 30px 0; border: 4px solid #fecaca; color: var(--danger); padding: 15px; border-radius: 20px; background: #fff5f5;">
+            </div>
+
+            <div style="display: flex; gap: 20px; margin-top: 25px;">
+                <button onclick="closeModal()" class="btn btn-danger" style="flex:1; padding: 20px; font-size: 1.2rem;">ABORT</button>
+                <button id="final-auth-btn" onclick="submitPin()" class="btn btn-success" style="flex:2; font-size: 1.2rem; padding: 20px; margin-top:0;">FINALIZE SALE</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="rmaModal">
+        <div class="modal-box" style="border-top-color: var(--warning);">
+            <h2 style="color: var(--warning); margin-top:0; font-size: 2.5rem; font-weight: 900;"><i class="fa-solid fa-rotate-left"></i> RMA RETURN</h2>
+            <p id="rma-item-name" style="font-weight: 900; font-size: 1.3rem; color: var(--primary); margin-bottom: 25px;"></p>
+            <div style="text-align: left; background: #f8fafc; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);">
+                <label style="font-weight: 900; font-size: 0.9rem; color: #64748b;">RETURN QTY (Max: <span id="rma-max-qty">0</span>)</label>
+                <input type="number" id="rma-qty" min="1" value="1" style="margin-bottom: 20px; font-size: 2rem; font-weight: 900; text-align: center; border-color: var(--warning);">
+                <label style="font-weight: 900; font-size: 0.9rem; color: #64748b;">RETURN REASON</label>
+                <select id="rma-reason" style="font-size: 1.1rem; font-weight: 800;">
+                    <option value="Defective">DEFECTIVE / BROKEN</option>
+                    <option value="Wrong Item">WRONG ITEM DISPENSED</option>
+                    <option value="Customer Return">CUSTOMER CHANGED MIND</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 20px;">
+                <button onclick="closeRmaModal()" class="btn btn-danger" style="flex:1; padding: 20px;">CANCEL</button>
+                <button onclick="confirmRmaProcess()" class="btn btn-warning" style="flex:1; padding: 20px; font-size: 1.2rem;">EXECUTE RMA</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-frame">
+                <img src="/static/logo.png" alt="ABUAB Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/140'">
+            </div>
+            <div id="role-badge">SECURING...</div>
+        </div>
+        <div class="nav-links">
+            <a class="nav-link active" id="nav-dash" onclick="showPage('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> COMMAND CENTER</a>
+            <a class="nav-link" id="nav-pos" onclick="showPage('sales', this)"><i class="fa-solid fa-cash-register"></i> ABUAB TERMINAL</a>
+            <a class="nav-link" id="nav-inv" onclick="showPage('inventory', this)"><i class="fa-solid fa-layer-group"></i> ASSET CONTROL</a>
+            <a class="nav-link" id="nav-rma" onclick="showPage('returns', this)"><i class="fa-solid fa-rotate-left"></i> SYSTEM RETURNS</a>
+            <a class="nav-link admin-only" id="nav-hist" onclick="showPage('history', this)"><i class="fa-solid fa-server"></i> MASTER LEDGER</a>
+            <a class="nav-link admin-only" id="nav-users" onclick="showPage('users', this)"><i class="fa-solid fa-fingerprint"></i> PERSONNEL SEC</a>
+            <a class="nav-link" onclick="logout()" style="margin-top:auto; color:#fca5a5; background: rgba(239, 68, 68, 0.1); border-radius: 0; margin: 0; padding: 25px 30px;"><i class="fa-solid fa-power-off"></i> TERMINATE SESSION</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <header class="top-header">
+            <h1 id="view-title" class="page-title">COMMAND CENTER</h1>
+            <div class="clock-widget">
+                <div class="pulse-dot"></div>
+                <div id="live-clock">00:00:00</div>
+                <div style="width: 2px; height: 30px; background: #e2e8f0; margin: 0 5px;"></div>
+                <div style="font-weight: 900; color: var(--primary); text-transform: uppercase; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                    <img src="" id="avatar-img" style="width: 35px; border-radius: 50%; display: none;" onerror="this.style.display='none'"> 
+                    <span id="cashier-name">OP-1</span>
+                </div>
+                
+                <div style="width: 2px; height: 30px; background: #e2e8f0; margin: 0 10px;"></div>
+                <button id="shift-toggle-btn" class="btn btn-danger" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 12px; margin: 0; width: auto;" onclick="toggleShift()">
+                    <i class="fa-solid fa-lock"></i> SHIFT CLOSED
+                </button>
+            </div>
+        </header>
+
+        <div id="dashboard" class="page-section active admin-only">
+            <div class="stats-grid">
+                <div class="card"><i class="fa-solid fa-microchip bg-icon"></i><h3>Registered SKU's</h3><p id="dash-sku" class="auto-resize">0</p></div>
+                <div class="card"><i class="fa-solid fa-boxes-packing bg-icon"></i><h3>Physical Assets</h3><p id="dash-units" class="auto-resize">0</p></div>
+                <div class="card"><i class="fa-solid fa-money-bill-trend-up bg-icon" style="color:rgba(16, 185, 129, 0.05);"></i><h3>Session Revenue</h3><p id="dash-rev" class="auto-resize" style="color: var(--success);">₱0.00</p></div>
+                <div class="card"><i class="fa-solid fa-triangle-exclamation bg-icon" style="color:rgba(239, 68, 68, 0.05);"></i><h3>Action Required</h3><p id="dash-low" class="auto-resize" style="color: var(--danger);">0</p></div>
+            </div>
+            
+            <div class="box" style="display: flex; justify-content: space-between; align-items: center; padding: 40px; background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(212, 175, 55, 0.1) 100%); flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h3 style="margin:0; font-size: 1.8rem;"><i class="fa-solid fa-cloud-arrow-down" style="color:var(--gold);"></i> DATABANK EXPORT</h3>
+                    <p style="margin:10px 0 0; color:var(--text-light); font-weight: 700; font-size:1.1rem;">Extract full asset manifest to Excel format.</p>
+                </div>
+                <button class="btn btn-primary" style="padding: 20px 40px; font-size: 1.2rem; background: linear-gradient(135deg, var(--gold) 0%, #b48608 100%); box-shadow: 0 10px 25px var(--gold-glow); border: none; color: white;" onclick="window.location.href='/export-inventory'"><i class="fa-solid fa-file-excel"></i> INITIATE EXPORT</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 35px;">
+                <div class="box"><h3 style="margin-top:0;"><i class="fa-solid fa-shield-cat" style="color:var(--cobalt);"></i> SECURITY AUDIT</h3><div style="max-height: 450px; overflow-y: auto; margin-top: 25px; padding-right: 15px;" id="activity-feed"></div></div>
+                <div class="box"><h3 style="margin-top:0;"><i class="fa-solid fa-bolt" style="color:var(--success);"></i> LIVE SALES</h3><div style="max-height: 450px; overflow-y: auto; margin-top: 25px; padding-right: 15px;" id="sales-feed"></div></div>
+            </div>
+        </div>
+
+        <div id="sales" class="page-section">
+            <div class="pos-container">
+                <div class="box" style="display: flex; flex-direction: column; padding: 40px;">
+                    <h3 style="margin-top:0; font-size: 2rem; letter-spacing: -1px;"><i class="fa-solid fa-barcode" style="color:var(--cobalt);"></i> OPTICAL SCANNER</h3>
+                    <p style="color: var(--text-light); margin-bottom: 30px; font-weight: 700; font-size: 1.1rem;">Scan barcode or type nomenclature. Press <kbd style="background:#e2e8f0; padding:4px 10px; border-radius:6px; border:1px solid #cbd5e1; box-shadow: 0 2px 0 #94a3b8;">ENTER</kbd> to register.</p>
+                    <input type="text" id="smart-scanner" class="fast-input" placeholder="SCAN READY..." onkeyup="filterPOS(event)">
+                    
+                    <div style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,0,0,0.1); border-radius: 20px; margin-top: 35px; background: white; box-shadow: inset 0 5px 20px rgba(0,0,0,0.03);">
+                        <table style="margin-top:0;">
+                            <thead><tr><th>Item Code</th><th>Nomenclature</th><th>Status</th></tr></thead>
+                            <tbody id="pos-lookup-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="pos-cart">
+                    <div class="pos-header" style="padding: 30px 40px; border-radius: 24px 24px 0 0;">
+                        <h3 style="margin: 0; font-size: 1.8rem; letter-spacing: 1px; font-weight: 900;"><i class="fa-solid fa-cart-arrow-down" style="color:var(--gold);"></i> ACTIVE CART</h3>
+                    </div>
+                    <div class="pos-items" style="padding: 15px 25px; overflow-x: auto;">
+                        <table id="cart-table" style="margin-top:0; min-width: 400px;">
+                            <thead><tr><th>Asset</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead>
+                            <tbody id="cart-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="pos-total" style="padding: 40px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 24px 24px;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 25px; margin-bottom: 25px;">
+                            <label style="font-weight: 900; color: var(--text-light); font-size: 1.3rem; letter-spacing: 1px;">MANAGER DISCOUNT %</label>
+                            <input type="number" id="cart-discount" value="0" min="0" max="100" style="width: 140px; padding: 18px; text-align: center; font-weight: 900; font-size: 2rem; color: var(--danger); border: 3px solid #cbd5e1; border-radius: 16px; background: white;" onchange="updateCartUI()">
+                        </div>
+                        <h2 id="cart-total-display" class="grand-total auto-resize">₱0.00</h2>
+                        <button class="btn btn-success" onclick="initiateCheckout()" style="width: 100%; padding: 30px; font-size: 1.8rem; border-radius: 20px; margin-top: 30px; margin-bottom: 0;"><i class="fa-solid fa-fingerprint"></i> AUTHORIZE PAYMENT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="returns" class="page-section">
+            <div class="box" style="border-top: 8px solid var(--warning);">
+                <h3 style="margin-top:0; font-size: 2rem;"><i class="fa-solid fa-rotate-left" style="color:var(--warning);"></i> PROCESS RMA PROTOCOL</h3>
+                <p style="color: var(--text-light); font-weight: 700; font-size: 1.1rem;">Input the Master Transaction ID from the client's receipt.</p>
+                <div style="display: flex; gap: 20px; margin-top: 30px; flex-wrap: wrap;">
+                    <input type="number" id="rma-search-id" placeholder="TRX ID (e.g. 1042)" style="font-size: 1.8rem; font-weight: 900; max-width: 350px; text-align: center; padding: 25px;">
+                    <button class="btn btn-primary" style="padding: 0 50px; font-size: 1.2rem;" onclick="fetchTransactionForRMA()">PULL RECORD</button>
+                </div>
+            </div>
+
+            <div class="box" id="rma-results-container" style="display: none; overflow-x: auto;">
+                <h3 style="margin-top:0; font-size: 1.8rem;">Ledger Details: #<span id="rma-trx-display" style="color:var(--cobalt);"></span></h3>
+                <div style="background: #f8fafc; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+                    <p style="margin:0; font-weight:900; font-size: 1.1rem;">Timestamp: <span id="rma-date" style="color:var(--text-light); font-weight:700;"></span></p>
+                    <p style="margin:10px 0 0 0; font-weight:900; font-size: 1.1rem;">Status: <span id="rma-status" style="color:var(--text-light); font-weight:700;"></span></p>
+                </div>
+                <table style="margin:0; min-width: 600px;">
+                    <thead><tr><th>Asset ID</th><th>Nomenclature</th><th>Base Price</th><th>Eligible Qty</th><th>Action</th></tr></thead>
+                    <tbody id="rma-items-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="inventory" class="page-section">
+            <div class="box admin-only" style="border-top: 8px solid var(--gold); border-radius: 20px;">
+                <h3 style="margin-top:0; font-size: 1.8rem;"><i class="fa-solid fa-truck-loading" style="color:var(--gold);"></i> INGEST NEW ASSET</h3>
+                <div class="inventory-input-grid">
+                    <input type="text" id="sku" placeholder="SKU/BARCODE">
+                    <input type="text" id="name" placeholder="FULL NOMENCLATURE">
+                    <select id="new-cat"><option value="Fluids & Chemicals">Fluids & Chemicals</option><option value="Filters">Filters</option><option value="Electrical & Ignition">Electrical & Ignition</option><option value="Brakes & Suspension">Brakes & Suspension</option><option value="Belts, Hoses & Cooling">Belts, Hoses & Cooling</option><option value="Exterior, Body & Cleaning">Exterior, Body & Cleaning</option><option value="Interior & Accessories">Interior & Accessories</option><option value="Tools & Shop Equipment">Tools & Shop Equipment</option><option value="Tires & Wheel Repair">Tires & Wheel Repair</option><option value="Misc">Misc</option></select>
+                    <input type="text" id="image-url" placeholder="IMAGE URL (OPTIONAL)">
+                    <input type="number" id="price" placeholder="BASE PRICE (₱)">
+                    <input type="number" id="stock" placeholder="UNITS REC'D">
+                </div>
+                <button class="btn btn-primary" style="margin-top: 30px; padding: 20px 50px; font-size: 1.1rem;" onclick="addProduct()">WRITE TO DATABANK</button>
+            </div>
+
+            <div class="box" style="padding: 35px; background: rgba(255,255,255,0.7);">
+                <div class="inventory-filter-grid">
+                    <input type="text" id="invSearch" placeholder="Query Databank (Name or SKU)..." onkeyup="filterInventory()" style="background: white;">
+                    <select id="invCat" onchange="filterInventory()"><option value="">All Classes</option><option value="Fluids & Chemicals">Fluids & Chemicals</option><option value="Filters">Filters</option><option value="Electrical & Ignition">Electrical & Ignition</option><option value="Brakes & Suspension">Brakes & Suspension</option><option value="Belts, Hoses & Cooling">Belts, Hoses & Cooling</option><option value="Exterior, Body & Cleaning">Exterior, Body & Cleaning</option><option value="Interior & Accessories">Interior & Accessories</option><option value="Tools & Shop Equipment">Tools & Shop Equipment</option><option value="Tires & Wheel Repair">Tires & Wheel Repair</option><option value="Misc">Misc</option></select>
+                    <select id="invStock" onchange="filterInventory()"><option value="all">Levels: Nominal</option><option value="low">Levels: Critical Alert</option></select>
+                    <select id="invSort" onchange="filterInventory()"><option value="none">Sort: Index</option><option value="low">Value: Low to High</option><option value="high">Value: High to Low</option></select>
+                </div>
+            </div>
+
+            <div class="box" style="padding:0; overflow-x: auto;">
+                <table id="inv-table" style="margin:0; min-width: 800px;">
+                    <thead><tr><th>INDEX</th><th>PHOTO</th><th>SKU CODE</th><th>NOMENCLATURE</th><th>CLASS</th><th>UNITS</th><th>BASE VALUE</th><th class="admin-only">OVERRIDE</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="history" class="page-section admin-only">
+            <div class="box" style="padding:0; overflow-x: auto;">
+                <h3 style="padding: 35px 40px; margin:0; border-bottom: 2px solid #e2e8f0; background: rgba(248, 250, 252, 0.8); backdrop-filter: blur(10px); font-size: 1.8rem;"><i class="fa-solid fa-server" style="color:var(--cobalt);"></i> Master Encrypted Ledger</h3>
+                <table style="margin:0; min-width: 800px;">
+                    <thead><tr><th>TRX ID</th><th>TIMESTAMP</th><th>OPERATOR</th><th>GROSS VAL</th><th>SEC STATUS</th><th>ACTION</th></tr></thead>
+                    <tbody id="history-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="users" class="page-section admin-only">
+            <div class="box" style="border-top: 8px solid var(--primary);">
+                <h3 style="margin-top:0; font-size: 1.6rem;"><i class="fa-solid fa-fingerprint" style="color:var(--primary);"></i> PROVISION SECURITY CREDENTIALS</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 25px; align-items: end; margin-top: 35px;">
+                    <div><label style="font-weight: 900; font-size: 0.9rem; color: var(--text-light); letter-spacing: 1.5px; display: block; margin-bottom: 10px;">OPERATOR ID</label><input type="text" id="new-username" placeholder="e.g. OP-01"></div>
+                    <div><label style="font-weight: 900; font-size: 0.9rem; color: var(--text-light); letter-spacing: 1.5px; display: block; margin-bottom: 10px;">PASSKEY</label><input type="password" id="new-password" placeholder="••••••••"></div>
+                    <div><label style="font-weight: 900; font-size: 0.9rem; color: var(--text-light); letter-spacing: 1.5px; display: block; margin-bottom: 10px;">CLEARANCE TIER</label><select id="new-role"><option value="staff">Tier 1: Terminal Operations</option><option value="supervisor">Tier 2: Floor Supervisor</option><option value="admin">Tier 3: System Administrator</option></select></div>
+                    <div><label style="font-weight: 900; font-size: 0.9rem; color: var(--danger); letter-spacing: 1.5px; display: block; margin-bottom: 10px;">OVERRIDE PIN</label><input type="password" id="new-pin" maxlength="4" placeholder="4 Digits"></div>
+                    <button class="btn btn-primary" style="height: 62px; padding: 0 50px; font-size: 1.1rem; color: white; border: none;" onclick="registerStaff()">ISSUE KEY</button>
+                </div>
+            </div>
+            <div class="box" style="padding:0; overflow-x: auto;">
+                <table id="users-table" style="margin:0; min-width: 600px;">
+                    <thead><tr><th>INDEX</th><th>OPERATOR ID</th><th>CLEARANCE TIER</th><th>PIN CRYPTO</th><th>REVOKE</th></tr></thead>
+                    <tbody id="users-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let USER = { role: 'staff', username: '' };
+        let PRODUCTS = [];
+        let CART = [];
+        let pendingAction = null, pendingData = null;
+        let activeRmaItem = null;
+
+        // 🛑 SMART RESIZE SYSTEM 🛑
+        function applySmartResize() {
+            document.querySelectorAll('.auto-resize').forEach(el => {
+                el.style.fontSize = ''; // Reset to stylesheet
+                el.style.whiteSpace = 'nowrap';
+                const parent = el.parentElement;
+                if(!parent) return;
+                
+                const parentStyle = window.getComputedStyle(parent);
+                const paddingX = parseFloat(parentStyle.paddingLeft || 0) + parseFloat(parentStyle.paddingRight || 0);
+                const safeWidth = parent.clientWidth - paddingX - 10;
+                
+                if (safeWidth <= 0) return;
+
+                el.style.display = 'inline-block';
+                el.style.width = 'auto';
+
+                if (el.scrollWidth > safeWidth) {
+                    const currentFontSize = parseFloat(window.getComputedStyle(el).fontSize);
+                    const ratio = safeWidth / el.scrollWidth;
+                    const newFontSize = Math.floor(currentFontSize * ratio);
+                    el.style.fontSize = Math.max(10, newFontSize) + 'px'; 
+
+                    // If it still overflows at the minimum readable size, allow wrapping.
+                    if (el.scrollWidth > safeWidth) {
+                        el.style.whiteSpace = 'normal';
+                        el.style.lineHeight = '1.2';
+                    }
+                }
+
+                el.style.display = 'block';
+                el.style.width = '100%';
+            });
+        }
+        window.addEventListener('resize', applySmartResize);
+
+        if (!localStorage.getItem('token')) window.location.replace('/login');
+
+        function logout() { 
+            if (confirm("⚠️ SECURE SYSTEM TERMINATION ⚠️\n\nAre you sure you want to end this active session?")) {
+                localStorage.removeItem('token'); 
+                window.location.replace('/login'); 
+            }
+        }
+
+        async function initSystem() {
+            try {
+                const res = await fetch('/me', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+                if (!res.ok) throw new Error("Auth Failed");
+                USER = await res.json();
+                
+                document.getElementById('role-badge').innerText = "CLEARANCE: " + USER.role;
+                document.getElementById('cashier-name').innerText = USER.username.toUpperCase();
+                
+                if(USER.username) {
+                    const avatar = document.getElementById('avatar-img');
+                    avatar.src = `https://ui-avatars.com/api/?name=${USER.username}&background=d4af37&color=fff&bold=true`;
+                    avatar.style.display = 'block';
+                }
+
+                if (USER.role === 'staff') {
+                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                    showPage('sales', document.getElementById('nav-pos'));
+                } else {
+                    showPage('dashboard', document.getElementById('nav-dash'));
+                }
+                
+                const shiftRes = await fetch('/shift/current', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+                const currentShift = await shiftRes.json();
+                if(currentShift) {
+                    const btn = document.getElementById('shift-toggle-btn');
+                    btn.className = "btn btn-success";
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
+                    btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> SHIFT OPEN`;
+                }
+
+                await loadAllData();
+                setInterval(() => document.getElementById('live-clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}), 1000);
+                setTimeout(applySmartResize, 100);
+            } catch (e) { 
+                localStorage.removeItem('token'); 
+                window.location.replace('/login'); 
+            }
+        }
+
+        async function loadAllData() {
+            const prodRes = await fetch('/products/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            PRODUCTS = await prodRes.json();
+            
+            document.getElementById('dash-sku').innerText = PRODUCTS.length;
+            document.getElementById('dash-units').innerText = PRODUCTS.reduce((a, b) => a + b.stock_quantity, 0);
+            document.getElementById('dash-low').innerText = PRODUCTS.filter(p => p.stock_quantity < 5).length;
+            
+            renderInventory(); renderPOSLookup();
+
+            if (USER.role !== 'staff') {
+                const adminRes = await fetch('/analytics/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+                const adminData = await adminRes.json();
+                
+                document.getElementById('activity-feed').innerHTML = adminData.logs.map(l => `
+                    <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.paddingLeft='25px';" onmouseout="this.style.background='transparent'; this.style.paddingLeft='20px';">
+                        <span style="font-size:1.1rem; font-weight:600;"><b style="color:var(--primary); text-transform:uppercase; font-weight:900;">${l.username}</b>: ${l.action}</span>
+                        <small style="font-weight:800; color:#64748b;">${new Date(l.timestamp + 'Z').toLocaleTimeString([],{hour:'2-digit', minute:'2-digit', hour12: true})}</small>
+                    </div>`).join('');
+                    
+                document.getElementById('sales-feed').innerHTML = adminData.sales.map(s => `
+                    <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.paddingLeft='25px';" onmouseout="this.style.background='transparent'; this.style.paddingLeft='20px';"><span style="font-weight:900; text-transform:uppercase; font-size:1.1rem;">${s.cashier_name}</span><strong class="auto-resize" style="color:${s.status==='VOIDED'?'var(--danger)':'var(--success)'}; font-size:1.3rem;">${s.status==='VOIDED'?'VOID':`₱${s.total_amount.toLocaleString()}`}</strong></div>`).join('');
+
+                const rev = adminData.sales.filter(s => s.status === 'COMPLETED').reduce((sum, s) => sum + s.total_amount, 0);
+                document.getElementById('dash-rev').innerText = `₱${rev.toLocaleString()}`;
+                
+                setTimeout(applySmartResize, 50);
+
+                const histRes = await fetch('/sales-history/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+                const sales = await histRes.json();
+                
+                document.getElementById('history-table-body').innerHTML = sales.reverse().map(s => `
+                    <tr>
+                        <td style="color:#64748b; font-weight:900;">#${s.id}</td>
+                        <td style="font-weight:700; color:var(--text-light);">${new Date(s.timestamp + 'Z').toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: true})}</td>
+                        <td style="font-weight:900; text-transform:uppercase;">${s.cashier_name}</td>
+                        <td style="font-weight:900; font-size:1.3rem; color:var(--primary);"><span class="auto-resize">₱${s.total_amount.toLocaleString()}</span></td>
+                        <td><span style="background:${s.status==='VOIDED'?'#fee2e2':'#dcfce7'}; color:${s.status==='VOIDED'?'#b91c1c':'#047857'}; padding:8px 16px; border-radius:12px; font-weight:900; font-size:0.85rem; letter-spacing:1px; border: 1px solid ${s.status==='VOIDED'?'#fca5a5':'#6ee7b7'};">${s.status}</span></td>
+                        <td>${s.status==='COMPLETED' ? `<button class="btn btn-danger" style="padding:10px 18px; font-size:0.85rem;" onclick="initiateVoid(${s.id})">VOID PROTOCOL</button>` : '---'}</td>
+                    </tr>
+                `).join('');
+                
+                if (USER.role === 'admin') loadUsers();
+            }
+        }
+
+        async function fetchTransactionForRMA() {
+            const id = document.getElementById('rma-search-id').value;
+            if(!id) return alert("Enter a Transaction ID.");
+            
+            const res = await fetch(`/sales/${id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            if(!res.ok) return alert("Transaction not found or invalid.");
+            
+            const data = await res.json();
+            document.getElementById('rma-trx-display').innerText = data.sale.id;
+            
+            document.getElementById('rma-date').innerText = new Date(data.sale.timestamp + 'Z').toLocaleString([], {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit', hour12: true});
+            
+            document.getElementById('rma-status').innerText = data.sale.status;
+
+            if (data.sale.status === 'VOIDED') return alert("Cannot process RMA on a voided transaction.");
+
+            document.getElementById('rma-items-body').innerHTML = data.items.map(i => {
+                if (i.available_qty <= 0) return `<tr><td style="color:#94a3b8; font-weight:900;">${i.product_id}</td><td style="color:#94a3b8; font-weight:800;">${i.name} (Already Returned)</td><td colspan="3"></td></tr>`;
+                
+                return `<tr>
+                    <td style="font-weight:900;">${i.product_id}</td>
+                    <td style="font-weight:800; font-size:1.1rem;">${i.name}</td>
+                    <td style="font-weight:900; color:var(--primary); font-size:1.2rem;"><span class="auto-resize">₱${i.price.toLocaleString()}</span></td>
+                    <td style="font-weight:900; color:var(--success); font-size:1.3rem;">${i.available_qty}</td>
+                    <td><button class="btn btn-warning" style="padding:12px 25px;" onclick="openRmaModal(${data.sale.id}, ${i.product_id}, '${i.name.replace(/'/g, "\\'")}', ${i.available_qty})">RETURN ASSET</button></td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('rma-results-container').style.display = 'block';
+            setTimeout(applySmartResize, 50);
+        }
+
+        function openRmaModal(saleId, prodId, name, maxQty) {
+            activeRmaItem = { saleId, prodId, maxQty };
+            document.getElementById('rma-item-name').innerText = name;
+            document.getElementById('rma-max-qty').innerText = maxQty;
+            document.getElementById('rma-qty').max = maxQty;
+            document.getElementById('rma-qty').value = 1;
+            document.getElementById('rmaModal').style.display = 'flex';
+        }
+
+        function closeRmaModal() { document.getElementById('rmaModal').style.display = 'none'; activeRmaItem = null; }
+
+        function confirmRmaProcess() {
+            const qty = parseInt(document.getElementById('rma-qty').value);
+            const reason = document.getElementById('rma-reason').value;
+            
+            if (qty > activeRmaItem.maxQty) return alert("Cannot return more than purchased.");
+            
+            const rmaData = { 
+                saleId: activeRmaItem.saleId, 
+                prodId: activeRmaItem.prodId, 
+                qty: qty, 
+                reason: reason 
+            };
+            
+            closeRmaModal();
+            
+            if (USER.role === 'staff') {
+                openPinModal('rma', rmaData, "Manager PIN required to authorize RMA refund.");
+            } else {
+                executeRmaAPI(rmaData.saleId, rmaData.prodId, rmaData.qty, rmaData.reason, ""); 
+            }
+        }
+
+        async function executeRmaAPI(saleId, prodId, qty, reason, pin) {
+            try {
+                const res = await fetch('/returns/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ sale_id: saleId, product_id: prodId, qty: qty, reason: reason, supervisor_pin: pin })
+                });
+                
+                if(res.ok) { 
+                    const data = await res.json();
+                    const refundAmt = data.refund_amount || data.refund || data.amount || 0; 
+                    alert(`RMA Successful.\nRefund Amount: ₱${Number(refundAmt).toLocaleString(undefined, {minimumFractionDigits: 2})}`); 
+                    fetchTransactionForRMA(); 
+                    loadAllData(); // Force sync inventory & revenue
+                } else { 
+                    const err = await res.json(); 
+                    const errMsg = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+                    alert("Error: " + errMsg); 
+                }
+            } catch(e) {
+                alert("System Alert: " + e.message);
+            }
+        }
+
+        const IMAGE_HINTS = [
+            ['motor oil', 'motor-oil,car-engine'],
+            ['transmission fluid', 'transmission-fluid,car-repair'],
+            ['brake', 'car-brake,auto-parts'],
+            ['battery', 'car-battery,automotive'],
+            ['spark plug', 'spark-plug,engine'],
+            ['filter', 'car-filter,auto-parts'],
+            ['alternator', 'alternator,car-engine'],
+            ['starter', 'starter-motor,car-engine'],
+            ['belt', 'engine-belt,car-engine'],
+            ['hose', 'radiator-hose,engine'],
+            ['wiper', 'windshield-wiper,car'],
+            ['wax', 'car-wax,detailing'],
+            ['tire', 'car-tire,wheel-repair'],
+            ['wheel', 'car-wheel,wheel-repair'],
+            ['jack', 'hydraulic-jack,garage'],
+            ['socket', 'socket-set,tools'],
+            ['wrench', 'wrench-set,tools'],
+            ['screwdriver', 'screwdriver-set,tools'],
+            ['pliers', 'pliers,tools'],
+            ['obd', 'obd2-scanner,diagnostic'],
+            ['multimeter', 'digital-multimeter,electrical'],
+        ];
+
+        function safeImageLock(v) {
+            const n = parseInt(v, 10);
+            return Number.isFinite(n) && n > 0 ? n : 1;
+        }
+
+        function smartImageUrl(name, category, lock, size = '120/80') {
+            const itemName = (name || '').toLowerCase();
+            let tags = '';
+
+            for (const [needle, mapped] of IMAGE_HINTS) {
+                if (itemName.includes(needle)) {
+                    tags = mapped;
+                    break;
+                }
+            }
+
+            if (!tags) {
+                const byCategory = {
+                    'fluids & chemicals': 'auto-fluids,car-maintenance',
+                    'filters': 'automotive-filter,auto-parts',
+                    'electrical & ignition': 'car-electrical,ignition-system',
+                    'brakes & suspension': 'car-brake,suspension',
+                    'belts, hoses & cooling': 'car-engine,cooling-system',
+                    'exterior, body & cleaning': 'car-detailing,auto-body',
+                    'interior & accessories': 'car-interior,accessories',
+                    'tools & shop equipment': 'mechanic-tools,garage',
+                    'tires & wheel repair': 'car-tire,wheel-repair'
+                };
+                tags = byCategory[(category || '').toLowerCase()] || 'auto-parts,car-repair';
+            }
+
+            return `https://loremflickr.com/${size}/${tags}?lock=${safeImageLock(lock)}`;
+        }
+
+        function isValidImageUrl(raw) {
+            if (!raw || !raw.trim()) return false;
+            try {
+                const url = new URL(raw.trim());
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+
+        function escapeAttr(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function setSmartFallbackImage(imgEl) {
+            imgEl.onerror = null;
+            imgEl.src = smartImageUrl(
+                imgEl.dataset.name || '',
+                imgEl.dataset.category || 'General',
+                imgEl.dataset.lock || 1,
+                '120/80'
+            );
+        }
+
+        function renderInventory() {
+            const tbody = document.querySelector('#inv-table tbody');
+            tbody.innerHTML = PRODUCTS.map(p => {
+                const isLow = p.stock_quantity < 5;
+                const imageSrc = isValidImageUrl(p.image_url) ? p.image_url : smartImageUrl(p.name, p.category, p.id, '120/80');
+                return `<tr style="${isLow ? 'background:#fff1f2;' : ''}">
+                    <td style="color:#64748b; font-weight:900;">${p.id}</td>
+                    <td><img src="${imageSrc}" alt="${escapeAttr(p.name)}" data-name="${escapeAttr(p.name)}" data-category="${escapeAttr(p.category || 'General')}" data-lock="${safeImageLock(p.id)}" style="width:58px;height:42px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;" onerror="setSmartFallbackImage(this)"></td>
+                    <td><b style="letter-spacing:1px; font-size:1.1rem;">${p.sku}</b></td><td style="font-weight:800; font-size:1.1rem;">${p.name}</td><td style="color:var(--text-light); font-weight:700;">${p.category}</td>
+                    <td style="font-weight:900; font-size:1.4rem; color:${isLow ? 'var(--danger)' : 'var(--primary)'};">${p.stock_quantity} ${isLow ? '<i class="fa-solid fa-triangle-exclamation" style="font-size:1rem;"></i>' : ''}</td><td style="font-weight:900; font-size:1.3rem; color:var(--primary);"><span class="auto-resize">₱${p.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></td>
+                    <td class="admin-only" style="${USER.role === 'staff' ? 'display:none;' : ''}">
+                        <button class="btn" style="padding:12px 18px; background:#f1f5f9; color:var(--primary); margin-right:8px; border: 2px solid #cbd5e1;" onclick="restockItem(${p.id})"><i class="fa-solid fa-plus"></i> QTY</button>
+                        <button class="btn btn-danger" style="padding:12px 18px;" onclick="deleteItem(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderPOSLookup() {
+            document.getElementById('pos-lookup-body').innerHTML = PRODUCTS.map(p => `
+                <tr class="lookup-row" onclick="addToCart(${p.id})">
+                    <td style="color:#64748b; font-weight:900; font-size:1.1rem;">${p.id}</td><td style="font-weight:800; font-size:1.2rem; display:flex; align-items:center; gap:12px;"><img src="${isValidImageUrl(p.image_url) ? p.image_url : smartImageUrl(p.name, p.category, p.id, '120/80')}" alt="${escapeAttr(p.name)}" data-name="${escapeAttr(p.name)}" data-category="${escapeAttr(p.category || 'General')}" data-lock="${safeImageLock(p.id)}" style="width:44px;height:32px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" onerror="setSmartFallbackImage(this)"> <span>${p.name}</span></td>
+                    <td style="color:${p.stock_quantity < 5 ? 'var(--danger)' : 'var(--success)'}; font-weight:900; font-size:1.2rem;">${p.stock_quantity} UNITS</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterPOS(e) {
+            const term = document.getElementById('smart-scanner').value.toLowerCase().trim();
+            const rows = document.getElementById('pos-lookup-body').getElementsByTagName('tr');
+            let matchCount = 0, lastId = null;
+            for(let row of rows) {
+                if(row.cells[1].innerText.toLowerCase().includes(term) || row.cells[0].innerText === term) {
+                    row.style.display = ''; matchCount++; lastId = parseInt(row.cells[0].innerText);
+                } else row.style.display = 'none';
+            }
+            if (e && e.key === 'Enter' && term !== '') {
+                if (matchCount === 1) addToCart(lastId);
+                else if (matchCount > 1) alert("Multiple matches found. Click item below.");
+            }
+        }
+
+        function addToCart(pid) {
+            const p = PRODUCTS.find(x => x.id === pid);
+            if (!p || p.stock_quantity <= 0) return alert("❌ ASSET DEPLETED!");
+            let item = CART.find(i => i.id === pid);
+            if (item) {
+                if (item.qty + 1 > p.stock_quantity) return alert("MAXIMUM STOCK REACHED.");
+                item.qty++;
+            } else { CART.push({ ...p, qty: 1 }); }
+            document.getElementById('smart-scanner').value = ''; filterPOS(); updateCartUI();
+        }
+
+        function updateCartUI() {
+            const tbody = document.getElementById('cart-body');
+            let subtotal = 0; tbody.innerHTML = '';
+            CART.forEach((c, i) => {
+                const sub = c.price * c.qty; subtotal += sub;
+                tbody.innerHTML += `<tr>
+                    <td style="font-weight:900; font-size:1.3rem; color:var(--primary);">${c.name}</td>
+                    <td><input type="number" value="${c.qty}" min="1" onchange="changeQty(${i}, this.value)" style="width: 80px; padding: 10px; font-weight: 900; text-align: center; border: 2px solid var(--cobalt); font-size: 1.2rem; color: var(--primary); background: white;"></td>
+                    <td style="font-weight:900; color:var(--primary); font-size:1.5rem;"><span class="auto-resize">₱${sub.toLocaleString(undefined, {minimumFractionDigits: 2})}</span></td>
+                    <td><button class="btn btn-danger" onclick="CART.splice(${i},1); updateCartUI();" style="padding:15px 22px; font-size:1.4rem; border-radius:12px;"><i class="fa-solid fa-xmark"></i></button></td>
+                </tr>`;
+            });
+            const disc = parseFloat(document.getElementById('cart-discount').value) || 0;
+            document.getElementById('cart-total-display').innerText = `₱${(subtotal - (subtotal * (disc/100))).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            setTimeout(applySmartResize, 100);
+        }
+
+        function changeQty(i, val) { 
+            const p = PRODUCTS.find(x => x.id === CART[i].id);
+            if (parseInt(val) > p.stock_quantity) { alert("Limit reached"); CART[i].qty = p.stock_quantity; }
+            else { CART[i].qty = parseInt(val) || 1; }
+            updateCartUI();
+        }
+
+        function calculateChange() {
+            const totalDueStr = document.getElementById('modal-total-due').innerText.replace('₱', '').replace(/,/g, '');
+            const totalDue = parseFloat(totalDueStr);
+            const tendered = parseFloat(document.getElementById('cash-tendered').value) || 0;
+            const change = tendered - totalDue;
+            
+            const display = document.getElementById('change-due-display');
+            const btn = document.getElementById('final-auth-btn');
+
+            display.innerText = `₱${Math.max(0, change).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            if (tendered < totalDue) {
+                display.style.color = "var(--danger)";
+                btn.disabled = true;
+                btn.style.opacity = "0.5";
+                btn.innerText = "INSUFFICIENT CASH";
+            } else {
+                display.style.color = "var(--success)";
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerText = "FINALIZE SALE";
+            }
+            setTimeout(applySmartResize, 50);
+        }
+
+        function initiateCheckout() {
+            if(CART.length === 0) return;
+            
+            const totalDue = document.getElementById('cart-total-display').innerText;
+            const disc = parseFloat(document.getElementById('cart-discount').value) || 0;
+            
+            // Set up Modal UI
+            document.getElementById('modal-total-due').innerText = `₱${totalDue}`;
+            document.getElementById('cash-tendered').value = '';
+            document.getElementById('change-due-display').innerText = '₱0.00';
+            
+            if (disc > 10 && USER.role === 'staff') {
+                document.getElementById('pin-zone').style.display = 'block';
+            } else {
+                document.getElementById('pin-zone').style.display = 'none';
+            }
+
+            pendingAction = 'checkout';
+            document.getElementById('pinModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('cash-tendered').focus(), 100);
+            calculateChange();
+        }
+
+        function submitPin() { 
+            const pin = document.getElementById('override-pin').value || ""; 
+            if (pendingAction === 'checkout') processCheckout(pin); 
+            else if (pendingAction === 'void') processVoid(pendingData.id, pendingData.reason, pin); 
+            else if (pendingAction === 'rma') executeRmaAPI(pendingData.saleId, pendingData.prodId, pendingData.qty, pendingData.reason, pin); 
+        }
+
+        async function processCheckout(pin) {
+            const tendered = parseFloat(document.getElementById('cash-tendered').value) || 0;
+            
+            try {
+                const res = await fetch('/checkout/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ 
+                        items: CART.map(i => ({product_id: i.id, qty: i.qty})), 
+                        discount_percent: document.getElementById('cart-discount').value, 
+                        amount_tendered: tendered, 
+                        supervisor_pin: pin 
+                    })
+                });
+
+                const data = await res.json();
+
+                if(!res.ok) { 
+                    const errMsg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+                    throw new Error(errMsg || "Checkout failed");
+                }
+                
+                const trxIdDisplay = data.transaction_id ? `\nTRX ID: #${data.transaction_id}` : "";
+                alert(`✔ TRANSACTION EXECUTED${trxIdDisplay}\n------------------------\nCHANGE DUE: ₱${data.change_due.toLocaleString(undefined, {minimumFractionDigits: 2})}`); 
+                CART = []; 
+                document.getElementById('cart-discount').value = 0; 
+                updateCartUI(); 
+                loadAllData(); 
+                closeModal(); 
+            } catch (err) { 
+                alert("System Alert: " + err.message); 
+            }
+        }
+        
+        function initiateVoid(id) {
+            const reason = prompt("Enter justification for void protocol:");
+            if (!reason) return;
+            if (USER.role === 'staff') openPinModal('void', {id, reason}, "Supervisor clearance required to execute void.");
+            else processVoid(id, reason, ""); 
+        }
+
+        async function processVoid(id, reason, pin) {
+            try {
+                const res = await fetch('/void-sale/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: JSON.stringify({ sale_id: id, reason: reason, supervisor_pin: pin })
+                });
+                if(res.ok) { 
+                    alert("Void protocol complete. Assets restored."); 
+                    loadAllData(); 
+                    closeModal(); 
+                } else { 
+                    const err = await res.json(); 
+                    const errMsg = typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+                    alert("Error: " + errMsg); 
+                }
+            } catch (error) {
+                alert("System Alert: " + error.message);
+            }
+        }
+
+        async function loadUsers() {
+            const res = await fetch('/users/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const users = await res.json();
+            document.getElementById('users-table-body').innerHTML = users.map(u => `<tr><td style="color:#64748b; font-weight:900;">${u.id}</td><td style="font-weight:900; text-transform:uppercase; font-size:1.2rem;">${u.username}</td><td><span style="background:#e0f2fe; color:#0369a1; padding:8px 18px; border-radius:12px; font-size:0.9rem; font-weight:900; text-transform:uppercase; border: 1px solid #bae6fd;">Tier: ${u.role}</span></td><td style="font-weight:900; color:var(--success);"><i class="fa-solid fa-shield-check"></i> ACTIVE</td><td><button class="btn btn-danger" style="padding:12px 25px;" onclick="deleteUserAccount(${u.id})">REVOKE ACCESS</button></td></tr>`).join('');
+        }
+
+        async function registerStaff() {
+            const f = new FormData(); f.append("username", document.getElementById('new-username').value); f.append("password", document.getElementById('new-password').value); f.append("role", document.getElementById('new-role').value); f.append("pin", document.getElementById('new-pin').value);
+            await fetch('/register', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: f }); alert("Credentials Issued."); document.getElementById('new-username').value=''; document.getElementById('new-password').value=''; loadUsers();
+        }
+        async function deleteUserAccount(id) { if(confirm("Terminate operative access?")) { await fetch(`/users/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }); loadUsers(); } }
+
+        function openPinModal(action, data, msg) { pendingAction = action; pendingData = data; document.getElementById('pinModalMsg').innerText = msg; document.getElementById('override-pin').value = ''; document.getElementById('pinModal').style.display = 'flex'; document.getElementById('override-pin').focus(); }
+        function closeModal() { document.getElementById('pinModal').style.display = 'none'; pendingAction = null; }
+
+        async function addProduct() {
+            const rawImageUrl = document.getElementById('image-url').value;
+            const cleanedImageUrl = isValidImageUrl(rawImageUrl) ? rawImageUrl.trim() : '';
+            if (rawImageUrl && !cleanedImageUrl) {
+                alert('Invalid image URL detected. Auto-generating a smart product image instead.');
+            }
+
+            const data = { sku: document.getElementById('sku').value, name: document.getElementById('name').value, category: document.getElementById('new-cat').value, image_url: cleanedImageUrl, price: document.getElementById('price').value, stock_quantity: document.getElementById('stock').value };
+            await fetch('/products/', { method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}`}, body: JSON.stringify(data) });
+            alert("Asset Ingested Successfully."); document.getElementById('sku').value=''; document.getElementById('name').value=''; document.getElementById('image-url').value=''; document.getElementById('price').value=''; document.getElementById('stock').value=''; loadAllData();
+        }
+
+        async function deleteItem(id) { if(confirm("Purge asset from databank?")) { await fetch(`/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }); loadAllData(); } }
+        async function restockItem(id) { const qty = prompt("Input unit payload amount:"); if(qty) { await fetch(`/restock/${id}?added_qty=${qty}`, { method: 'POST', headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`} }); loadAllData(); } }
+
+        function showPage(id, el) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+            document.getElementById('view-title').innerText = id.toUpperCase().replace('-', ' ');
+            if(id === 'sales') setTimeout(() => document.getElementById('smart-scanner').focus(), 100);
+            setTimeout(applySmartResize, 100);
+        }
+
+        function filterInventory() {
+            const s = document.getElementById('invSearch').value.toUpperCase(), c = document.getElementById('invCat').value.toUpperCase(), st = document.getElementById('invStock').value;
+            Array.from(document.querySelectorAll('#inv-table tbody tr')).forEach(r => {
+                const matchS = r.innerText.toUpperCase().includes(s), matchC = c === "" || r.cells[4].innerText.toUpperCase().includes(c), qty = parseInt(r.cells[5].innerText);
+                let matchSt = true; if(st === 'low') matchSt = (qty > 0 && qty < 5);
+                r.style.display = (matchS && matchC && matchSt) ? "" : "none";
+            });
+        }
+        
+        async function toggleShift() {
+            const btn = document.getElementById('shift-toggle-btn');
+            const isOpen = btn.innerText.includes('OPEN');
+
+            if (!isOpen) {
+                const floatAmt = prompt("Enter starting float/cash amount for this shift (₱):", "0");
+                if (floatAmt === null) return; 
+                
+                const parsedAmt = parseFloat(floatAmt);
+                if (isNaN(parsedAmt)) {
+                    alert("Invalid amount. Please enter a number.");
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/shift/start', { 
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json', 
+                            'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                        },
+                        body: JSON.stringify({ starting_cash: parsedAmt })
+                    });
+                    
+                    const data = await res.json(); 
+
+                    if(!res.ok) {
+                        const errMsg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+                        throw new Error(errMsg || "Failed to open shift.");
+                    }
+
+                    updateShiftUI(true);
+                    alert("Shift initialized successfully.");
+
+                } catch (error) {
+                    alert("System Alert: " + error.message); 
+                }
+            } else {
+                if(confirm("End current shift? You will need to enter the final drawer amount.")) {
+                    const endCash = prompt("Enter the actual cash currently in the drawer (₱):", "0");
+                    if (endCash === null) return;
+                    
+                    const parsedEndCash = parseFloat(endCash);
+                    if (isNaN(parsedEndCash)) {
+                        alert("Invalid amount. Please enter a number.");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch('/shift/end', { 
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                            },
+                            body: JSON.stringify({ actual_cash: parsedEndCash })
+                        });
+
+                        const data = await res.json(); 
+
+                        if(!res.ok) {
+                            const errMsg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+                            throw new Error(errMsg || "System Error closing shift.");
+                        }
+
+                        updateShiftUI(false);
+                        alert(`Shift Terminated.\nExpected Cash: ₱${data.expected_cash}\nActual Cash: ₱${data.actual_cash}\nDiscrepancy: ₱${data.discrepancy}`);
+
+                    } catch (error) {
+                        alert("Error: " + error.message);
+                    }
+                }
+            }
+        }
+
+        function updateShiftUI(open) {
+            const btn = document.getElementById('shift-toggle-btn');
+            if(open) {
+                btn.className = "btn btn-success";
+                btn.style.background = 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
+                btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> SHIFT OPEN`;
+            } else {
+                btn.className = "btn btn-danger";
+                btn.style.background = '#fee2e2';
+                btn.innerHTML = `<i class="fa-solid fa-lock"></i> SHIFT CLOSED`;
+            }
+        }
+
+        initSystem();
+    </script>
+</body>
+</html>

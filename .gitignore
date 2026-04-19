@@ -1,0 +1,39 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local runtime data and exports
+*.db
+*.sqlite
+*.sqlite3
+*.xlsx
+*.csv
+ABUAB_Inventory_Report.xlsx
+ABUAB_Inventory_Master_Report.xlsx
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
