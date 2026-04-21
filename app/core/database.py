@@ -1,13 +1,19 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# For development, we use SQLite. 
-# Because we are using SQLAlchemy, we can swap this exact code to PostgreSQL later with zero structural changes!
-SQLALCHEMY_DATABASE_URL = "sqlite:///./abuab_inventory.db"
+# Defaults to SQLite for local development. Use DATABASE_URL in production.
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./abuab_inventory.db")
+
+connect_args = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
 
 # The engine is the core connection to the database
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL,
+    connect_args=connect_args,
 )
 
 # The session is what we use to talk to the database (add, delete, edit)
